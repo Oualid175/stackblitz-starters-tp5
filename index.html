@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TP - Authentification Multi-Facteur</title>
+  </head>
+  <body>
+    <h1>TP : Implémentation de l'Authentification Multi-Facteur (MFA)</h1>
+    <h2>4ème Année Ingénierie Informatique & Réseaux - EMSI de Tanger</h2>
+    <p>
+      Bonjour chers étudiants de la 4ème année IIR de l'EMSI de Tanger. Dans ce
+      TP, nous allons apprendre à implémenter une authentification multi-facteur
+      (MFA) en utilisant Google Authenticator. Ce TP vous permettra de renforcer
+      la sécurité des connexions dans une application web en ajoutant une couche
+      supplémentaire de protection.
+    </p>
+    <p>
+      Vous trouverez ci-dessous un code QR que vous devez scanner avec
+      l'application Google Authenticator sur votre téléphone. Ensuite, entrez le
+      token généré par Google Authenticator dans le champ prévu et cliquez sur
+      "Vérifier le Token" pour valider votre authentification.
+    </p>
+    <div id="qrcode"></div>
+    <input type="text" id="token" placeholder="Entrez le token" />
+    <button onclick="verifyToken()">Vérifier le Token</button>
+    <script>
+      fetch('/generate')
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById('qrcode').innerHTML = `<img
+src="${data.qrcode}">`;
+          localStorage.setItem('secret', data.secret);
+        });
+      function verifyToken() {
+        const token = document.getElementById('token').value;
+        const secret = localStorage.getItem('secret');
+        fetch('/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, secret }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.verified) {
+              alert('Token valide !');
+            } else {
+              alert('Token invalide.');
+            }
+          });
+      }
+    </script>
+  </body>
+</html>
